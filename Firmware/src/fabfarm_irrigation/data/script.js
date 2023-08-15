@@ -25,16 +25,18 @@ function fetchJSONState() {
 		updateElementIfChanged("batLevel", jsonDataState.data.batLevel);
 		if (doRefresh) {
 				updateSchedulingHtml(rebuildHtml);
-		  timeoutID = setTimeout(fetchJSONState, 1000);
+		  timeoutID = setTimeout(fetchJSONState, 5000);
 			}
 	  })
 	  .catch(error => {
 			console.log(error);
 		if (doRefresh) {
 				updateSchedulingHtml();
-		  timeoutID = setTimeout(fetchJSONState, 1000);
+		  timeoutID = setTimeout(fetchJSONState, 5000);
 			}
 		});
+    
+    console.log(jsonDataState);
 }
 
 function updateElementIfChanged(elementId, newValue) {

@@ -16,7 +16,7 @@ void switchDevice(int pinNumber, bool state, const char *deviceName)
 {
   pinMode(pinNumber, OUTPUT);
   digitalWrite(pinNumber, state ? ON : OFF);
-  Serial.printf("%s (pin %d) is %s\n\r", deviceName, pinNumber, state ? "on" : "off");
+//   Serial.printf("%s (pin %d) is %s\n\r", deviceName, pinNumber, state ? "on" : "off");
 }
 
 void handleDevices(JsonArray devices, bool (*shouldEnableDevice)(JsonObject &))
@@ -50,7 +50,7 @@ bool shouldEnableDeviceInScheduleMode(JsonObject &device)
 
 void scheduleMode()
 {
-  Serial.println("Schedule Mode");
+//   Serial.println("Schedule Mode");
   handleDevices(doc["relays"], shouldEnableDeviceInScheduleMode);
 }
 
