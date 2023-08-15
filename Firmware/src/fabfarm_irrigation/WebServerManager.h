@@ -11,5 +11,6 @@ void handleAddRelayTimeRequest(AsyncWebServerRequest *request, JsonVariant &json
 void handleDeleteRelayTimeRequest(AsyncWebServerRequest *request);
 void handleAddRelayRequest(AsyncWebServerRequest *request, JsonVariant &json);
 void handleDeleteRelayRequest(AsyncWebServerRequest *request);
+void onWebSocketEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type, void *arg, uint8_t *data, size_t len);
 
 #endif // WEB_SERVER_MANAGER_H

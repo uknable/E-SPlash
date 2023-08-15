@@ -14,6 +14,8 @@
 #include <RtcDS3231.h>
 #include <ThreeWire.h>
 #include <RtcDS1302.h>
+#include <AsyncWebSocket.h>
+
 
 #include "WebServerManager.h"
 #include "WiFiHandler.h"
@@ -61,6 +63,7 @@ extern RtcDS1302<ThreeWire> Rtc;
 
 extern ESP32Time rtc;
 extern AsyncWebServer server;
+extern AsyncWebSocket ws;
 extern int jsonSize;
 extern DynamicJsonDocument doc;
 extern boolean isScheduleMode;

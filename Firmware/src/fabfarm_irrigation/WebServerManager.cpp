@@ -6,6 +6,35 @@ const int HTTP_OK = 200;
 const int HTTP_INTERNAL_SERVER_ERROR = 500;
 const int HTTP_METHOD_NOT_ALLOWED = 405;
 
+// Websocket code from https://chat.openai.com/share/5a88f9ca-4172-4c3e-8ae7-a0a75ff5e305
+void onWebSocketEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type, void *arg, uint8_t *data, size_t len) {
+    if (type == WS_EVT_CONNECT) {
+        // Handle new WebSocket connection
+        Serial.println("WebSocket client connected");
+        client->text("Received your message!");
+    } else if (type == WS_EVT_DISCONNECT) {
+        // Handle WebSocket disconnection
+        Serial.println("WebSocket client disconnected");
+    } else if (type == WS_EVT_DATA) {
+        // Handle WebSocket data received
+        AwsFrameInfo *info = (AwsFrameInfo *)arg;
+        if (info->final && info->index == 0 && info->len == len && info->opcode == WS_TEXT) {
+            // Handle text data received
+            // You can process 'data' here and send a response if needed
+            Serial.print("Received data: ");
+            for(size_t i = 0; i < len; i++) {
+                Serial.print((char)data[i]); // Assuming the data is ASCII characters
+            }
+            Serial.println();
+
+            // Sends message to React app
+            // client->text("Received your message from ESP!");
+        }
+
+        
+    }
+}
+
 // Helper function to serialize JSON and send response
 void sendJsonResponse(AsyncWebServerRequest *request, DynamicJsonDocument &data)
 {
@@ -20,12 +49,15 @@ void handleGetDataJsonRequest(AsyncWebServerRequest *request)
     Serial.println("/data.json");
     DynamicJsonDocument data = doc;
 
-    data["data"]["currentTime"] = rtc.getTime("%A, %B %d %Y %H:%M");
-    data["data"]["temperature"] = readDHTTemperature();
-    data["data"]["humidity"] = readDHTHumidity();
-    data["data"]["batLevel"] = getBatteryLevel();
+    // data["data"]["currentTime"] = rtc.getTime("%A, %B %d %Y %H:%M"); old
+    // Figured out format from: https://cplusplus.com/reference/ctime/strftime/
+    data["global"]["time"] = rtc.getTime("%Y-%m-%dT%H:%M");
+    data["global"]["temperature"] = readDHTTemperature();
+    data["global"]["humidity"] = readDHTHumidity();
+    data["global"]["batLevel"] = getBatteryLevel();
 
     sendJsonResponse(request, data);
+
 }
 
 // Handler for POST /updateData
@@ -196,12 +228,16 @@ void serverHandle()
 {
     server.on("/data.json", HTTP_GET, handleGetDataJsonRequest);
     AsyncCallbackJsonWebHandler *updateData = new AsyncCallbackJsonWebHandler("/updateData", handleUpdateDataRequest);
+
     server.on("^\\/mode\\/((manual)|(scheduled))$", HTTP_GET, handleModeChangeRequest);
+
     server.on("^\\/relay\\/([0-9]+)\\/((on)|(off))$", HTTP_GET, handleRelayRequest);
     AsyncCallbackJsonWebHandler *updateRelayTime = new AsyncCallbackJsonWebHandler("/relay/update-time", handleUpdateRelayTimeRequest);
     AsyncCallbackJsonWebHandler *addRelayTime = new AsyncCallbackJsonWebHandler("/relay/add-time", handleAddRelayTimeRequest);
+
     server.on("^\\/relay\\/([0-9]+)\\/time\\/([0-9]+)$", HTTP_DELETE, handleDeleteRelayTimeRequest);
     AsyncCallbackJsonWebHandler *addRelay = new AsyncCallbackJsonWebHandler("/relay/add", handleAddRelayRequest);
+
     server.on("^\\/relay\\/([0-9]+)$", HTTP_DELETE, handleDeleteRelayRequest);
 
     server.addHandler(updateData);
@@ -212,15 +248,24 @@ void serverHandle()
     server.on("/", HTTP_GET, [](AsyncWebServerRequest *request)
               { request->send(LittleFS, "/index.html", String(), false); });
 
-    server.on("^(\\/[a-zA-Z0-9_.-]*)$", HTTP_GET, [](AsyncWebServerRequest *request)
-              {
+    // Websocket code from https://chat.openai.com/share/5a88f9ca-4172-4c3e-8ae7-a0a75ff5e305
+    // Placed before following "server.on()" because otherwise it will try to serve a file at "/ws"
+    ws.onEvent(onWebSocketEvent); // Attach the event handler
+    server.addHandler(&ws); // Add WebSocket handler to server
+
+    server.on("^(\\/[a-zA-Z0-9_.-]*)$", HTTP_GET, [](AsyncWebServerRequest *request) {
         String file = request->pathArg(0);
         Serial.printf("Serving file %s\n\r", file.c_str());
-        request->send(LittleFS, file, String(), false); });
+        request->send(LittleFS, file, String(), false); 
+    });
 
     isScheduleMode = doc["data"]["isScheduleMode"];
+
     if (!isScheduleMode)
     {
         manualMode();
     }
+
+
 }
+

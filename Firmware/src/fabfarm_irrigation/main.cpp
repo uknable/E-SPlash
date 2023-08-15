@@ -17,6 +17,7 @@ void setup()
 
 void loop()
 {
+  ws.cleanupClients();
   handleWiFiConnection();
   if (isScheduleMode)
   {

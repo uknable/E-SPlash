@@ -2,11 +2,13 @@ import { createContext, useState, useEffect } from 'react';
 // import { fetchData } from '../services';
 
 const DataContext = createContext(null);
+const DATA_FETCH_INTERVAL = 5000; // in milliseconds
 
 const DataContextProvider = ({ children }) => {
     const [data, setData] = useState(null);
 
-    const url = '/src/mockData/testdata.json';
+    const url = '/data.json';
+    // const url = '/src/mockData/testdata.json';
     const value = { data, setData };
 
     const fetchAndSetData = () => {
@@ -15,6 +17,7 @@ const DataContextProvider = ({ children }) => {
             .then((data) => {
                 console.log('fetched data from server:', data);
                 setData(data);
+                setTimeout(fetchAndSetData, DATA_FETCH_INTERVAL);
             })
             .catch((err) => {
                 throw new Error('Critical error fetching data from server:', err);

@@ -19,6 +19,7 @@ RtcDS1302<ThreeWire> Rtc(myWire);
 
 ESP32Time rtc;
 AsyncWebServer server(80);
+AsyncWebSocket ws("/ws"); // https://chat.openai.com/share/5a88f9ca-4172-4c3e-8ae7-a0a75ff5e305
 int jsonSize = 1800;
 DynamicJsonDocument doc(jsonSize);
 boolean isScheduleMode = false;

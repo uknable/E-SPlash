@@ -1,5 +1,9 @@
 #include "TimeHandler.h"
 #include "Config.h"
+#include <iostream>
+#include <string>
+#include <unordered_map>
+#include <algorithm>
 
 void printCompilationTimestamp()
 {
@@ -8,9 +12,30 @@ void printCompilationTimestamp()
     Serial.println("*****************************************************\n\r");
 }
 
+
+int getMonthNumber(const unsigned char monthName) {
+    static const std::unordered_map<std::string, int> monthMap = {
+        {"january", 1}, {"february", 2}, {"march", 3}, {"april", 4},
+        {"may", 5}, {"june", 6}, {"july", 7}, {"august", 8},
+        {"september", 9}, {"october", 10}, {"november", 11}, {"december", 12}
+    };
+
+    // Convert the input monthName to lowercase
+    std::string lowercaseMonth(reinterpret_cast<const char *>(monthName));
+    std::transform(lowercaseMonth.begin(), lowercaseMonth.end(), lowercaseMonth.begin(), ::tolower);
+
+    auto it = monthMap.find(lowercaseMonth);
+    if (it != monthMap.end()) {
+        return it->second;
+    } else {
+        return -1; // Invalid month
+    }
+}
+
 void printRtcDateTime(const RtcDateTime &dt)
 {
     char datestring[20];
+    
     snprintf_P(datestring, countof(datestring), PSTR("%02u/%02u/%04u %02u:%02u:%02u"), dt.Month(), dt.Day(), dt.Year(), dt.Hour(), dt.Minute(), dt.Second());
     Serial.println(datestring);
 }

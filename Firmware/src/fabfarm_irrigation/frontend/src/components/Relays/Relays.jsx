@@ -37,7 +37,7 @@ const Relays = ({
                                     <td>{relay.id}</td>
                                     <td>{relay.name}</td>
                                     <td>{relay.pin}</td>
-                                    <td>{relay.enabled ? 'On' : 'Off'}</td>
+                                    <td>{relay.isEnabled ? 'On' : 'Off'}</td>
                                     <td>
                                         <button onClick={() => removeRelay(relay.id)}>Remove relay</button>
                                     </td>

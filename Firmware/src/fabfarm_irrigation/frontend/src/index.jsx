@@ -8,6 +8,7 @@ import { DataContextProvider } from './context/DataContext';
 // import './styles/normalize.css';
 import './index.css';
 
+
 ReactDOM.createRoot(document.getElementById('root')).render(
     <React.StrictMode>
         <Router>

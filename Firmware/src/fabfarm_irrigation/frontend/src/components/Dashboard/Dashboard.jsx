@@ -25,14 +25,14 @@ const Dashboard = ({ data }) => {
 
                 <div className='card'>
                     <div className='icon-container'>
-                        <img src='/src/assets/icons/thermometer.svg' alt='thermometer' />
+                        <img src='/src/assets/icons/thermometer.svg' alt='humidity' />
                     </div>
                     <div className='card-value'>{data.global.humidity ?? 'n/a'}</div>
                 </div>
 
                 <div className='card'>
                     <div className='icon-container'>
-                        <img src='/src/assets/icons/thermometer.svg' alt='thermometer' />
+                        <img src='/src/assets/icons/thermometer.svg' alt='batLevel' />
                     </div>
                     <div className='card-value'>{data.global.batLevel ?? 'n/a'}</div>
                 </div>
