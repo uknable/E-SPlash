@@ -11,7 +11,7 @@ void onWebSocketEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsE
     if (type == WS_EVT_CONNECT) {
         // Handle new WebSocket connection
         Serial.println("WebSocket client connected");
-        client->text("Received your message!");
+        client->text("ESP32 confirming WebSocket connection");
     } else if (type == WS_EVT_DISCONNECT) {
         // Handle WebSocket disconnection
         Serial.println("WebSocket client disconnected");
@@ -263,6 +263,7 @@ void serverHandle()
     server.on("/data.json", HTTP_GET, handleGetDataJsonRequest);
     AsyncCallbackJsonWebHandler *updateData = new AsyncCallbackJsonWebHandler("/updateData", handleUpdateDataRequest);
 
+    server.on("^/relays/27/schedule-mode", HTTP_GET, handleModeChangeRequest);
     server.on("^\\/relays\\/([0-9]+)\\/((manual)|(schedule-mode))$", HTTP_GET, handleModeChangeRequest);
 
     server.on("^\\/relays\\/([0-9]+)\\/((on)|(off))$", HTTP_GET, handleRelayRequest);

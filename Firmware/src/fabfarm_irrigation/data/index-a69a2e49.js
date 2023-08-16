@@ -9337,52 +9337,6 @@ const Settings = () => {
 const Update = () => {
   return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { children: "Update page" });
 };
-let socket;
-function initWebSocket() {
-  console.log("Trying to open a WebSocket connection...");
-  socket = new WebSocket(`ws://${window.location.hostname}/ws`);
-  socket.onopen = onOpen;
-  socket.onclose = onClose;
-  socket.onmessage = onMessage;
-}
-function onOpen(event) {
-  console.log("Connection opened");
-}
-function onClose(event) {
-  console.log("Connection closed");
-  setTimeout(initWebSocket, 2e3);
-}
-function onMessage(event) {
-  console.log("Message received");
-  console.log(event);
-  sendMessage("hello");
-}
-window.addEventListener("load", onLoad);
-function onLoad(event) {
-  initWebSocket();
-}
-function waitForSocketConnection(ws, callback) {
-  setTimeout(
-    function() {
-      if (ws.readyState === 1) {
-        console.log("Connection is made");
-        if (callback != null) {
-          callback();
-        }
-      } else {
-        console.log("wait for connection...");
-        waitForSocketConnection(ws, callback);
-      }
-    },
-    1e3
-  );
-}
-function sendMessage(msg) {
-  waitForSocketConnection(socket, function() {
-    console.log("message sent from sendMessage");
-    socket.send(msg);
-  });
-}
 function App() {
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "app-container", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx(Topbar, {}),
@@ -9393,7 +9347,53 @@ function App() {
     ] })
   ] });
 }
+const WebSocketContext = reactExports.createContext(null);
+const WebSocketContextProvider = ({ children }) => {
+  let socket = reactExports.useRef(null);
+  function initWebSocket() {
+    console.log("Trying to open a WebSocket connection...");
+    socket = new WebSocket(`ws://${window.location.hostname}/ws`);
+    socket.onopen = onOpen;
+    socket.onclose = onClose;
+    socket.onmessage = onMessage;
+  }
+  const onOpen = (event) => {
+    console.log("WebSocket connection opened");
+  };
+  const onClose = (event) => {
+    console.log("WebSocket connection closed");
+    setTimeout(initWebSocket, 2e3);
+  };
+  const onMessage = (event) => {
+    console.log("WebSocket response received");
+    console.log(event);
+    sendMessage("hello");
+  };
+  const waitForSocketConnection = (ws, callback) => {
+    setTimeout(() => {
+      if (ws.readyState === 1) {
+        console.log("WebSocket connection is open to send message.");
+        if (callback != null) {
+          callback();
+        }
+      } else {
+        console.log("Waiting for connection...");
+        waitForSocketConnection(ws, callback);
+      }
+    }, 1e3);
+  };
+  const sendMessage = (msg) => {
+    waitForSocketConnection(socket, function() {
+      console.log("WebSocket message sent from app: ", msg);
+      socket.send(msg);
+    });
+  };
+  reactExports.useEffect(() => {
+    initWebSocket();
+  }, []);
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(WebSocketContext.Provider, { value: socket, children });
+};
 const index = "";
 client.createRoot(document.getElementById("root")).render(
-  /* @__PURE__ */ jsxRuntimeExports.jsx(React.StrictMode, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(BrowserRouter, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(DataContextProvider, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(App, {}) }) }) })
+  /* @__PURE__ */ jsxRuntimeExports.jsx(React.StrictMode, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(BrowserRouter, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(WebSocketContextProvider, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(DataContextProvider, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(App, {}) }) }) }) })
 );

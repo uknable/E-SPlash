@@ -1,5 +1,4 @@
 import { createContext, useState, useEffect } from 'react';
-// import { fetchData } from '../services';
 
 const DataContext = createContext(null);
 const DATA_FETCH_INTERVAL = 5000; // in milliseconds
