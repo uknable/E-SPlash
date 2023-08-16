@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import './Controls.css';
 
+import { useWebSocket, WebSocketContextProvider } from '../../context/WebSocketContext';
+
 const Controls = ({
     data,
     handleScheduleModeChange,
@@ -10,6 +12,8 @@ const Controls = ({
     removeSchedule,
     modifySchedule,
 }) => {
+    const socket = useWebSocket();
+
     return (
         <section className='controls'>
             <header className='controls-page-header'>
@@ -30,7 +34,7 @@ const Controls = ({
                                     <input
                                         type='checkbox'
                                         checked={relay.isScheduleMode}
-                                        onChange={(e) => handleScheduleModeChange(e, relay.pin)}
+                                        onChange={(e) => handleScheduleModeChange()}
                                     />
                                     <span className="slider round"></span>
                                 </label>

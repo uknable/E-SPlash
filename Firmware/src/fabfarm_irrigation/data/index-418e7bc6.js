@@ -8894,6 +8894,13 @@ function useLinkClickHandler(to, _temp) {
   }, [location, navigate, path, replaceProp, state, target, to, preventScrollReset, relative]);
 }
 const App$1 = "";
+const WebSocketContext = reactExports.createContext();
+const useWebSocket = () => {
+  return reactExports.useContext(WebSocketContext);
+};
+const WebSocketContextProvider = ({ children, socket }) => {
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(WebSocketContext.Provider, { value: socket, children });
+};
 const Topbar$1 = "";
 const Topbar = () => {
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("header", { className: "topbar", children: [
@@ -8965,6 +8972,7 @@ const Controls = ({
   removeSchedule,
   modifySchedule
 }) => {
+  useWebSocket();
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { className: "controls", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx("header", { className: "controls-page-header", children: /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { children: "Controls" }) }),
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "controls-container", children: data.relays.map((relay) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "control-box", children: [
@@ -8984,7 +8992,7 @@ const Controls = ({
               {
                 type: "checkbox",
                 checked: relay.isScheduleMode,
-                onChange: (e) => handleScheduleModeChange(e, relay.pin)
+                onChange: (e) => handleScheduleModeChange()
               }
             ),
             /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "slider round" })
@@ -9049,20 +9057,51 @@ const Home = () => {
   const { data, setData } = useData();
   const [startTime, setStartTime] = reactExports.useState("");
   const [duration, setDuration] = reactExports.useState("");
-  const handleScheduleModeChange = (e, relayId2) => {
-    console.log("sending request", relayId2);
-    fetch({
-      url: `/relays/${relayId2}/schedule-mode`,
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: { isScheduleMode: e.target.checked }
-    }).then((res) => {
-      console.log("response received", res);
-      res.json();
-    }).then((data2) => {
-      console.log("setting data", data2);
-      setData(data2);
+  let socket;
+  function initWebSocket() {
+    console.log("Trying to open a WebSocket connection...");
+    socket = new WebSocket(`ws://${window.location.hostname}/ws`);
+    socket.onopen = onOpen;
+    socket.onclose = onClose;
+    socket.onmessage = onMessage;
+  }
+  function onOpen(event) {
+    console.log("WebSocket connection opened");
+  }
+  function onClose(event) {
+    console.log("WebSocket connection closed");
+    setTimeout(initWebSocket, 2e3);
+  }
+  function onMessage(event) {
+    console.log("WebSocket response received");
+    console.log(event);
+    sendMessage("hello");
+  }
+  function waitForSocketConnection(ws, callback) {
+    setTimeout(() => {
+      if (ws.readyState === 1) {
+        console.log("WebSocket connection is open to send message.");
+        if (callback != null) {
+          callback();
+        }
+      } else {
+        console.log("Waiting for connection...");
+        waitForSocketConnection(ws, callback);
+      }
+    }, 1e3);
+  }
+  function sendMessage(msg) {
+    waitForSocketConnection(socket, () => {
+      console.log("WebSocket message sent from app: ", msg);
+      socket.send(msg);
     });
+  }
+  reactExports.useEffect(() => {
+    initWebSocket();
+  }, []);
+  const handleScheduleModeChange = () => {
+    console.log("Sending message");
+    sendMessage("hello from handleScheduleModeChange");
   };
   const handleToggleRelay = (e, relayId2) => {
     fetch({
@@ -9096,7 +9135,7 @@ const Home = () => {
       body: { startTime, duration }
     }).then((res) => res.json()).then((data2) => setData(data2));
   };
-  return /* @__PURE__ */ jsxRuntimeExports.jsx("main", { children: !!data && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+  return /* @__PURE__ */ jsxRuntimeExports.jsx("main", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(WebSocketContextProvider, { socket, children: !!data && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx(Dashboard, { data }),
     /* @__PURE__ */ jsxRuntimeExports.jsx(
       Controls,
@@ -9115,7 +9154,7 @@ const Home = () => {
         modifySchedule
       }
     )
-  ] }) });
+  ] }) }) });
 };
 const DateAndTime$1 = "";
 const DateAndTime = ({ currentTime, inputDate, setInputDate, inputTime, setInputTime, setDateTime }) => {
@@ -9347,53 +9386,7 @@ function App() {
     ] })
   ] });
 }
-const WebSocketContext = reactExports.createContext(null);
-const WebSocketContextProvider = ({ children }) => {
-  let socket = reactExports.useRef(null);
-  function initWebSocket() {
-    console.log("Trying to open a WebSocket connection...");
-    socket = new WebSocket(`ws://${window.location.hostname}/ws`);
-    socket.onopen = onOpen;
-    socket.onclose = onClose;
-    socket.onmessage = onMessage;
-  }
-  const onOpen = (event) => {
-    console.log("WebSocket connection opened");
-  };
-  const onClose = (event) => {
-    console.log("WebSocket connection closed");
-    setTimeout(initWebSocket, 2e3);
-  };
-  const onMessage = (event) => {
-    console.log("WebSocket response received");
-    console.log(event);
-    sendMessage("hello");
-  };
-  const waitForSocketConnection = (ws, callback) => {
-    setTimeout(() => {
-      if (ws.readyState === 1) {
-        console.log("WebSocket connection is open to send message.");
-        if (callback != null) {
-          callback();
-        }
-      } else {
-        console.log("Waiting for connection...");
-        waitForSocketConnection(ws, callback);
-      }
-    }, 1e3);
-  };
-  const sendMessage = (msg) => {
-    waitForSocketConnection(socket, function() {
-      console.log("WebSocket message sent from app: ", msg);
-      socket.send(msg);
-    });
-  };
-  reactExports.useEffect(() => {
-    initWebSocket();
-  }, []);
-  return /* @__PURE__ */ jsxRuntimeExports.jsx(WebSocketContext.Provider, { value: socket, children });
-};
 const index = "";
 client.createRoot(document.getElementById("root")).render(
-  /* @__PURE__ */ jsxRuntimeExports.jsx(React.StrictMode, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(BrowserRouter, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(WebSocketContextProvider, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(DataContextProvider, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(App, {}) }) }) }) })
+  /* @__PURE__ */ jsxRuntimeExports.jsx(React.StrictMode, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(BrowserRouter, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(DataContextProvider, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(App, {}) }) }) })
 );

@@ -1,6 +1,9 @@
+import { useEffect } from 'react';
 import { Routes, Route } from 'react-router-dom';
 
 import './App.css';
+
+import { WebSocketContextProvider } from './context/WebSocketContext';
 
 import Topbar from './components/Topbar';
 import Home from './pages/Home';
