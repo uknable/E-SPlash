@@ -11,14 +11,21 @@ const Home = () => {
     const [duration, setDuration] = useState('');
 
     const handleScheduleModeChange = (e, relayId) => {
+        console.log("sending request", relayId);
         fetch({
             url: `/relays/${relayId}/schedule-mode`,
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: { isScheduleMode: e.target.checked },
         })
-            .then((res) => res.json())
-            .then((data) => setData(data));
+            .then((res) => {
+                console.log("response received", res);
+                res.json()
+            })
+            .then((data) => {
+                console.log("setting data", data);
+                setData(data)
+            });
     };
 
     const handleToggleRelay = (e, relayId) => {

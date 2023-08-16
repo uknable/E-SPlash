@@ -8984,7 +8984,7 @@ const Controls = ({
               {
                 type: "checkbox",
                 checked: relay.isScheduleMode,
-                onChange: (e) => handleScheduleModeChange(e, relay.id)
+                onChange: (e) => handleScheduleModeChange(e, relay.pin)
               }
             ),
             /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "slider round" })
@@ -9050,12 +9050,19 @@ const Home = () => {
   const [startTime, setStartTime] = reactExports.useState("");
   const [duration, setDuration] = reactExports.useState("");
   const handleScheduleModeChange = (e, relayId2) => {
+    console.log("sending request", relayId2);
     fetch({
       url: `/relays/${relayId2}/schedule-mode`,
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: { isScheduleMode: e.target.checked }
-    }).then((res) => res.json()).then((data2) => setData(data2));
+    }).then((res) => {
+      console.log("response received", res);
+      res.json();
+    }).then((data2) => {
+      console.log("setting data", data2);
+      setData(data2);
+    });
   };
   const handleToggleRelay = (e, relayId2) => {
     fetch({

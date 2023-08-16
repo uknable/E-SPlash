@@ -78,7 +78,13 @@ void handleUpdateDataRequest(AsyncWebServerRequest *request, JsonVariant &json)
 // Handler for GET /mode/(manual|scheduled)
 void handleModeChangeRequest(AsyncWebServerRequest *request)
 {
-    isScheduleMode = request->pathArg(0).equals("scheduled");
+    Serial.println("request received");
+    
+    String relayId = request->pathArg(0);
+    Serial.println(relayId);
+
+    isScheduleMode = request->pathArg(0).equals("schedule-mode");
+    
     doc["data"]["isScheduleMode"].set(isScheduleMode);
 
     if (writeDataJson())
@@ -98,6 +104,34 @@ void handleModeChangeRequest(AsyncWebServerRequest *request)
     {
         request->send(HTTP_INTERNAL_SERVER_ERROR);
     }
+
+    // if (request->contentType() == "application/json") {
+    //     size_t len = request->contentLength();
+    //     AsyncJsonWebHandler* jsonHandler = new AsyncCallbackJsonWebHandler(
+    //         [len](JsonVariant &json) {
+    //             DynamicJsonDocument jsonBuffer(len + 1);
+    //             deserializeJson(jsonBuffer, json);
+                
+    //             const char* value = jsonBuffer["key"]; // Replace "key" with the actual key
+    //             Serial.print("Parsed value: ");
+    //             Serial.println(value);
+    //         },
+    //         1024 // Buffer size, adjust as needed
+    //     );
+
+    //     request->addInterestingHeader("ANY");
+    //     request->addInterestingHeader("Content-Type");
+    //     request->onRequestBody([jsonHandler](uint8_t *data, size_t len, size_t index, size_t total) {
+    //         jsonHandler->receivePartialData(data, len);
+    //     });
+
+    //     request->onBodyEnd([jsonHandler]() {
+    //         delete jsonHandler;
+    //     });
+    // }
+    
+    // request->send(200); // Send an HTTP response
+
 }
 
 // Handler for GET /relay/(number)/(on|off)
@@ -229,16 +263,16 @@ void serverHandle()
     server.on("/data.json", HTTP_GET, handleGetDataJsonRequest);
     AsyncCallbackJsonWebHandler *updateData = new AsyncCallbackJsonWebHandler("/updateData", handleUpdateDataRequest);
 
-    server.on("^\\/mode\\/((manual)|(scheduled))$", HTTP_GET, handleModeChangeRequest);
+    server.on("^\\/relays\\/([0-9]+)\\/((manual)|(schedule-mode))$", HTTP_GET, handleModeChangeRequest);
 
-    server.on("^\\/relay\\/([0-9]+)\\/((on)|(off))$", HTTP_GET, handleRelayRequest);
+    server.on("^\\/relays\\/([0-9]+)\\/((on)|(off))$", HTTP_GET, handleRelayRequest);
     AsyncCallbackJsonWebHandler *updateRelayTime = new AsyncCallbackJsonWebHandler("/relay/update-time", handleUpdateRelayTimeRequest);
     AsyncCallbackJsonWebHandler *addRelayTime = new AsyncCallbackJsonWebHandler("/relay/add-time", handleAddRelayTimeRequest);
 
-    server.on("^\\/relay\\/([0-9]+)\\/time\\/([0-9]+)$", HTTP_DELETE, handleDeleteRelayTimeRequest);
+    server.on("^\\/relays\\/([0-9]+)\\/time\\/([0-9]+)$", HTTP_DELETE, handleDeleteRelayTimeRequest);
     AsyncCallbackJsonWebHandler *addRelay = new AsyncCallbackJsonWebHandler("/relay/add", handleAddRelayRequest);
 
-    server.on("^\\/relay\\/([0-9]+)$", HTTP_DELETE, handleDeleteRelayRequest);
+    server.on("^\\/relays\\/([0-9]+)$", HTTP_DELETE, handleDeleteRelayRequest);
 
     server.addHandler(updateData);
     server.addHandler(updateRelayTime);
