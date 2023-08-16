@@ -20,16 +20,23 @@ const Controls = ({
                 {data.relays.map((relay) => (
                     <div className='control-box' key={relay.id}>
                         <header>
+
                             <div className='box-label'>
                                 {relay.name} <span className='pin-info'>Pin {relay.pin}</span>
                             </div>
-                            <div className='manual-automatic-check-wrapper'>
-                                <input
-                                    type='checkbox'
-                                    checked={relay.isScheduleMode}
-                                    onChange={(e) => handleScheduleModeChange(e, relay.id)}
-                                />
+                            
+                            <div className='switch'>
+                                <label >
+                                    <input
+                                        type='checkbox'
+                                        checked={relay.isScheduleMode}
+                                        onChange={(e) => handleScheduleModeChange(e, relay.id)}
+                                    />
+                                    <span className="slider round"></span>
+                                </label>
+                                <p>{relay.isEnabled ? 'Schedule' : 'Manual'}</p>
                             </div>
+
                         </header>
 
                         {!relay.isScheduleMode && (

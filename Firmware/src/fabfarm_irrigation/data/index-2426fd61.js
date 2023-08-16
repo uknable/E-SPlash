@@ -8977,14 +8977,20 @@ const Controls = ({
             relay.pin
           ] })
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "manual-automatic-check-wrapper", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-          "input",
-          {
-            type: "checkbox",
-            checked: relay.isScheduleMode,
-            onChange: (e) => handleScheduleModeChange(e, relay.id)
-          }
-        ) })
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "switch", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "input",
+              {
+                type: "checkbox",
+                checked: relay.isScheduleMode,
+                onChange: (e) => handleScheduleModeChange(e, relay.id)
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "slider round" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: relay.isEnabled ? "Schedule" : "Manual" })
+        ] })
       ] }),
       !relay.isScheduleMode && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "enable-check-wrapper", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
         "input",
