@@ -6,69 +6,38 @@ import Controls from '../../components/Controls';
 
 import { useWebSocket, WebSocketContextProvider } from '../../context/WebSocketContext';
 
+
+// Websocket code from:
+// https://stackoverflow.com/questions/69249467/websocket-is-undefined-immediately-after-receiving-message-in-react
+
+const socket = new WebSocket(`ws://${window.location.hostname}/ws`);
+
 const Home = () => {
     const { data, setData } = useData();
-
     const [startTime, setStartTime] = useState('');
     const [duration, setDuration] = useState('');
-
-    let socket;
-
-    function initWebSocket() {
-        console.log('Trying to open a WebSocket connection...');
-        socket = new WebSocket(`ws://${window.location.hostname}/ws`);
-        socket.onopen = onOpen;
-        socket.onclose = onClose;
-        socket.onmessage = onMessage;
-    }
-
-    function onOpen(event) {
-        console.log('WebSocket connection opened');
-    }
-
-    function onClose(event) {
-        console.log('WebSocket connection closed');
-        setTimeout(initWebSocket, 2000);
-    }
-
-    function onMessage(event) {
-        console.log('WebSocket response received');
-        console.log(event);
-
-        sendMessage("hello");
-    }
-
-    // Make the function wait until the connection is made...
-    function waitForSocketConnection(ws, callback) {
-        setTimeout(() => {
-            if (ws.readyState === 1) {
-                console.log("WebSocket connection is open to send message.")
-                if (callback != null){
-                    callback();
-                }
-            } else {
-                console.log("Waiting for connection...")
-                waitForSocketConnection(ws, callback);
-            }
-
-        }, 1000); // milliseconds
-    }
-
-    function sendMessage(msg) {
-        // Wait until the state of the socket is not ready and send the message when it is...
-        waitForSocketConnection(socket, () => {
-            console.log("WebSocket message sent from app: ", msg);
-            socket.send(msg);
-        });
-    }
-
-    // function sendMessage(msg) {
-    //     socket.send(msg);
-    // }
+    
+    const ws = useRef(socket);
 
     useEffect(() => {
-        initWebSocket();
-    }, []);
+        ws.current?.addEventListener("message", ({ data }) => {
+            parseMessage(data);
+        });
+        return () => {
+            ws.current?.removeAllListeners()
+        }
+    }, [])
+
+    const parseMessage = (msg) => {
+        if (msg[0] !== "R") sendMessage("123"); // ignore the very first message from the socket. 
+    };
+
+    const sendMessage = (msg) => ws.current?.send(msg);
+
+
+    const sendMsg = () => {
+        ws.current?.send("test");
+    };
 
     const handleScheduleModeChange = () => {
         console.log("Sending message");

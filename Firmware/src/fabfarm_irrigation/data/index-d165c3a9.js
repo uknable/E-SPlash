@@ -8898,8 +8898,8 @@ const WebSocketContext = reactExports.createContext();
 const useWebSocket = () => {
   return reactExports.useContext(WebSocketContext);
 };
-const WebSocketContextProvider = ({ children, socket }) => {
-  return /* @__PURE__ */ jsxRuntimeExports.jsx(WebSocketContext.Provider, { value: socket, children });
+const WebSocketContextProvider = ({ children, socket: socket2 }) => {
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(WebSocketContext.Provider, { value: socket2, children });
 };
 const Topbar$1 = "";
 const Topbar = () => {
@@ -9053,52 +9053,30 @@ const Controls = ({
     ] }, relay.id)) })
   ] });
 };
+const socket = new WebSocket(`ws://${window.location.hostname}/ws`);
 const Home = () => {
+  const ws = reactExports.useRef(socket);
   const { data, setData } = useData();
   const [startTime, setStartTime] = reactExports.useState("");
   const [duration, setDuration] = reactExports.useState("");
-  let socket;
-  function initWebSocket() {
-    console.log("Trying to open a WebSocket connection...");
-    socket = new WebSocket(`ws://${window.location.hostname}/ws`);
-    socket.onopen = onOpen;
-    socket.onclose = onClose;
-    socket.onmessage = onMessage;
-  }
-  function onOpen(event) {
-    console.log("WebSocket connection opened");
-  }
-  function onClose(event) {
-    console.log("WebSocket connection closed");
-    setTimeout(initWebSocket, 2e3);
-  }
-  function onMessage(event) {
-    console.log("WebSocket response received");
-    console.log(event);
-    sendMessage("hello");
-  }
-  function waitForSocketConnection(ws, callback) {
-    setTimeout(() => {
-      if (ws.readyState === 1) {
-        console.log("WebSocket connection is open to send message.");
-        if (callback != null) {
-          callback();
-        }
-      } else {
-        console.log("Waiting for connection...");
-        waitForSocketConnection(ws, callback);
-      }
-    }, 1e3);
-  }
-  function sendMessage(msg) {
-    waitForSocketConnection(socket, () => {
-      console.log("WebSocket message sent from app: ", msg);
-      socket.send(msg);
-    });
-  }
   reactExports.useEffect(() => {
-    initWebSocket();
+    var _a;
+    (_a = ws.current) == null ? void 0 : _a.addEventListener("message", ({ data: data2 }) => {
+      parseMessage(data2);
+    });
+    return () => {
+      var _a2;
+      (_a2 = ws.current) == null ? void 0 : _a2.removeAllListeners();
+    };
   }, []);
+  const parseMessage = (msg) => {
+    if (msg[0] !== "R")
+      sendMessage("123");
+  };
+  const sendMessage = (msg) => {
+    var _a;
+    return (_a = ws.current) == null ? void 0 : _a.send(msg);
+  };
   const handleScheduleModeChange = () => {
     console.log("Sending message");
     sendMessage("hello from handleScheduleModeChange");

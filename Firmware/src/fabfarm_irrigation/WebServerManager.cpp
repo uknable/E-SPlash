@@ -263,7 +263,7 @@ void serverHandle()
     server.on("/data.json", HTTP_GET, handleGetDataJsonRequest);
     AsyncCallbackJsonWebHandler *updateData = new AsyncCallbackJsonWebHandler("/updateData", handleUpdateDataRequest);
 
-    server.on("^/relays/27/schedule-mode", HTTP_GET, handleModeChangeRequest);
+    // server.on("^/relays/27/schedule-mode", HTTP_GET, handleModeChangeRequest);
     server.on("^\\/relays\\/([0-9]+)\\/((manual)|(schedule-mode))$", HTTP_GET, handleModeChangeRequest);
 
     server.on("^\\/relays\\/([0-9]+)\\/((on)|(off))$", HTTP_GET, handleRelayRequest);
