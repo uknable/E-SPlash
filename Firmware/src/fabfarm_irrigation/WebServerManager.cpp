@@ -19,19 +19,22 @@ void onWebSocketEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsE
         // Handle WebSocket data received
         AwsFrameInfo *info = (AwsFrameInfo *)arg;
         if (info->final && info->index == 0 && info->len == len && info->opcode == WS_TEXT) {
-            // Handle text data received
-            // You can process 'data' here and send a response if needed
-            Serial.print("Received data: ");
-            for(size_t i = 0; i < len; i++) {
-                Serial.print((char)data[i]); // Assuming the data is ASCII characters
+            
+            const size_t bufferSize = JSON_OBJECT_SIZE(10); // Adjust as needed
+            StaticJsonDocument<bufferSize> jsonDoc;
+
+            DeserializationError error = deserializeJson(jsonDoc, data, len);
+
+            if (!error) {
+                const char* value = jsonDoc["key"]; // Replace "key" with the actual key
+                Serial.print("Parsed value: ");
+                Serial.println(value);
+            } else {
+                Serial.print(F("Failed to parse JSON: "));
+                Serial.println(error.c_str());
             }
-            Serial.println();
-
-            // Sends message to React app
-            // client->text("Received your message from ESP!");
+            
         }
-
-        
     }
 }
 
@@ -49,7 +52,6 @@ void handleGetDataJsonRequest(AsyncWebServerRequest *request)
     Serial.println("/data.json");
     DynamicJsonDocument data = doc;
 
-    // data["data"]["currentTime"] = rtc.getTime("%A, %B %d %Y %H:%M"); old
     // Figured out format from: https://cplusplus.com/reference/ctime/strftime/
     data["global"]["time"] = rtc.getTime("%Y-%m-%dT%H:%M");
     data["global"]["temperature"] = readDHTTemperature();
@@ -104,34 +106,6 @@ void handleModeChangeRequest(AsyncWebServerRequest *request)
     {
         request->send(HTTP_INTERNAL_SERVER_ERROR);
     }
-
-    // if (request->contentType() == "application/json") {
-    //     size_t len = request->contentLength();
-    //     AsyncJsonWebHandler* jsonHandler = new AsyncCallbackJsonWebHandler(
-    //         [len](JsonVariant &json) {
-    //             DynamicJsonDocument jsonBuffer(len + 1);
-    //             deserializeJson(jsonBuffer, json);
-                
-    //             const char* value = jsonBuffer["key"]; // Replace "key" with the actual key
-    //             Serial.print("Parsed value: ");
-    //             Serial.println(value);
-    //         },
-    //         1024 // Buffer size, adjust as needed
-    //     );
-
-    //     request->addInterestingHeader("ANY");
-    //     request->addInterestingHeader("Content-Type");
-    //     request->onRequestBody([jsonHandler](uint8_t *data, size_t len, size_t index, size_t total) {
-    //         jsonHandler->receivePartialData(data, len);
-    //     });
-
-    //     request->onBodyEnd([jsonHandler]() {
-    //         delete jsonHandler;
-    //     });
-    // }
-    
-    // request->send(200); // Send an HTTP response
-
 }
 
 // Handler for GET /relay/(number)/(on|off)

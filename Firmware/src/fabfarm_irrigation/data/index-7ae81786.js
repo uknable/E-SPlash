@@ -9055,10 +9055,10 @@ const Controls = ({
 };
 const socket = new WebSocket(`ws://${window.location.hostname}/ws`);
 const Home = () => {
-  const ws = reactExports.useRef(socket);
   const { data, setData } = useData();
   const [startTime, setStartTime] = reactExports.useState("");
   const [duration, setDuration] = reactExports.useState("");
+  const ws = reactExports.useRef(socket);
   reactExports.useEffect(() => {
     var _a;
     (_a = ws.current) == null ? void 0 : _a.addEventListener("message", ({ data: data2 }) => {
@@ -9071,15 +9071,19 @@ const Home = () => {
   }, []);
   const parseMessage = (msg) => {
     if (msg[0] !== "R")
-      sendMessage("123");
+      sendMessage({ "message": "123" });
   };
-  const sendMessage = (msg) => {
+  const sendMessage = (json) => {
     var _a;
-    return (_a = ws.current) == null ? void 0 : _a.send(msg);
+    return (_a = ws.current) == null ? void 0 : _a.send(json);
   };
   const handleScheduleModeChange = () => {
     console.log("Sending message");
-    sendMessage("hello from handleScheduleModeChange");
+    const dataToSend = {
+      key: "value",
+      sensorValue: 42
+    };
+    sendMessage(JSON.stringify(dataToSend));
   };
   const handleToggleRelay = (e, relayId2) => {
     fetch({

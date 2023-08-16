@@ -29,10 +29,10 @@ const Home = () => {
     }, [])
 
     const parseMessage = (msg) => {
-        if (msg[0] !== "R") sendMessage("123"); // ignore the very first message from the socket. 
+        if (msg[0] !== "R") sendMessage({"message": "123"}); // ignore the very first message from the socket. 
     };
 
-    const sendMessage = (msg) => ws.current?.send(msg);
+    const sendMessage = (json) => ws.current?.send(json);
 
 
     const sendMsg = () => {
@@ -41,7 +41,13 @@ const Home = () => {
 
     const handleScheduleModeChange = () => {
         console.log("Sending message");
-        sendMessage("hello from handleScheduleModeChange");
+        
+        const dataToSend = {
+            key: 'value',
+            sensorValue: 42
+          };
+
+        sendMessage(JSON.stringify(dataToSend));
     }
 
     // const handleScheduleModeChange = (e, relayId) => {
