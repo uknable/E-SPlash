@@ -35,6 +35,9 @@ extern int batVoltPin;
 extern const char *wifi_network_hostname;
 extern const char *soft_ap_ssid;
 extern const char *soft_ap_password;
+extern const char *RELAY_PIN_WATER;
+extern const char *RELAY_PIN_VEGETABLES;
+extern const char *RELAY_PIN_FRUIT;
 
 #define ds_3231
 #define TTL_Logic_Low

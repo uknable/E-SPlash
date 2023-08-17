@@ -8992,7 +8992,7 @@ const Controls = ({
               {
                 type: "checkbox",
                 checked: relay.isScheduleMode,
-                onChange: (e) => handleScheduleModeChange()
+                onChange: (e) => handleScheduleModeChange(relay.pin)
               }
             ),
             /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "slider round" })
@@ -9077,11 +9077,12 @@ const Home = () => {
     var _a;
     return (_a = ws.current) == null ? void 0 : _a.send(json);
   };
-  const handleScheduleModeChange = () => {
-    console.log("Sending message");
+  const handleScheduleModeChange = (pin) => {
+    console.log(`Sending message ${pin}`);
     const dataToSend = {
-      key: "value",
-      sensorValue: 42
+      action: "enable",
+      relayPin: `${pin}`
+      // relayId: `${pin}`
     };
     sendMessage(JSON.stringify(dataToSend));
   };

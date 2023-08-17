@@ -6,6 +6,22 @@ const int HTTP_OK = 200;
 const int HTTP_INTERNAL_SERVER_ERROR = 500;
 const int HTTP_METHOD_NOT_ALLOWED = 405;
 
+
+// void relayActionSwitch(char action) {
+//     switch(action) {
+//         case "enable":
+//             break;
+//         case "schedule":
+//             break;
+//         case "add":
+//             break;
+//         case "delete":
+//             break;
+//         default:
+//             break;
+//     }
+// }
+
 // Websocket code from https://chat.openai.com/share/5a88f9ca-4172-4c3e-8ae7-a0a75ff5e305
 void onWebSocketEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type, void *arg, uint8_t *data, size_t len) {
     if (type == WS_EVT_CONNECT) {
@@ -20,15 +36,36 @@ void onWebSocketEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsE
         AwsFrameInfo *info = (AwsFrameInfo *)arg;
         if (info->final && info->index == 0 && info->len == len && info->opcode == WS_TEXT) {
             
-            const size_t bufferSize = JSON_OBJECT_SIZE(10); // Adjust as needed
-            StaticJsonDocument<bufferSize> jsonDoc;
+            // const size_t bufferSize = JSON_OBJECT_SIZE(100); // Adjust as needed
+            // StaticJsonDocument<bufferSize> jsonDoc;
+            // DeserializationError error = deserializeJson(jsonDoc, data, len);
 
-            DeserializationError error = deserializeJson(jsonDoc, data, len);
+            // String jsonStr((char *)data);
+            // StaticJsonDocument<200> jsonDoc; // Adjust the buffer size as needed
+            // DeserializationError error = deserializeJson(jsonDoc, jsonStr);
+
+            Serial.println("Received WebSocket message: " + String((char*)data));
+
+            // Parse the received JSON data
+            const size_t bufferSize = JSON_OBJECT_SIZE(100);
+            DynamicJsonDocument jsonDoc(bufferSize);
+
+            DeserializationError error = deserializeJson(jsonDoc, (char*)data);
 
             if (!error) {
-                const char* value = jsonDoc["key"]; // Replace "key" with the actual key
+                // const char* pin = jsonDoc["relayId"];
+                const char* pin = jsonDoc["relayPin"];
+                // const char* action = jsonDoc["action"]; 
+
                 Serial.print("Parsed value: ");
-                Serial.println(value);
+                Serial.println(pin);
+                
+                if (String(pin).equals("25") || String(pin).equals("26") || String(pin).equals("27")) {
+                    Serial.println("Pin recognised");
+                } else {
+                    Serial.println("Pin not recognised");
+                }
+
             } else {
                 Serial.print(F("Failed to parse JSON: "));
                 Serial.println(error.c_str());
@@ -80,11 +117,6 @@ void handleUpdateDataRequest(AsyncWebServerRequest *request, JsonVariant &json)
 // Handler for GET /mode/(manual|scheduled)
 void handleModeChangeRequest(AsyncWebServerRequest *request)
 {
-    Serial.println("request received");
-    
-    String relayId = request->pathArg(0);
-    Serial.println(relayId);
-
     isScheduleMode = request->pathArg(0).equals("schedule-mode");
     
     doc["data"]["isScheduleMode"].set(isScheduleMode);

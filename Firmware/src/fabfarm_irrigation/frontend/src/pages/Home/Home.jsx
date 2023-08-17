@@ -39,12 +39,13 @@ const Home = () => {
         ws.current?.send("test");
     };
 
-    const handleScheduleModeChange = () => {
-        console.log("Sending message");
-        
+    const handleScheduleModeChange = (pin) => {
+        console.log(`Sending message ${pin}`);
+
         const dataToSend = {
-            key: 'value',
-            sensorValue: 42
+            action: "enable",
+            relayPin: `${pin}`,
+            // relayId: `${pin}`
           };
 
         sendMessage(JSON.stringify(dataToSend));

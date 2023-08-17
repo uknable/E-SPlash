@@ -20,7 +20,7 @@ float readDHTData(bool isTemperature)
     }
     else
     {
-        Serial.printf("%s: %f\n\r", isTemperature ? "Temperature" : "Humidity", data);
+        // Serial.printf("%s: %f\n\r", isTemperature ? "Temperature" : "Humidity", data);
     }
 
     return data;
@@ -52,7 +52,7 @@ float getBatteryLevel()
     {
         batteryLevel = 0;
     }
-    Serial.printf("Battery Level: %f\n\r", batteryLevel);
+    // Serial.printf("Battery Level: %f\n\r", batteryLevel);
     return batteryLevel;
 }
 

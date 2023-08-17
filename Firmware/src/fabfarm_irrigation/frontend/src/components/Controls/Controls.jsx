@@ -34,7 +34,7 @@ const Controls = ({
                                     <input
                                         type='checkbox'
                                         checked={relay.isScheduleMode}
-                                        onChange={(e) => handleScheduleModeChange()}
+                                        onChange={(e) => handleScheduleModeChange(relay.pin)}
                                     />
                                     <span className="slider round"></span>
                                 </label>

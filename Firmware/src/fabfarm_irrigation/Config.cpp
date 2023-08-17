@@ -5,6 +5,9 @@ int batVoltPin = BOARD_CONFIG.voltage_pin;
 const char *wifi_network_hostname = BOARD_CONFIG.wifi_hostname;
 const char *soft_ap_ssid = BOARD_CONFIG.ap_ssid;
 const char *soft_ap_password = BOARD_CONFIG.ap_password;
+const char *RELAY_PIN_WATER = "25";
+const char *RELAY_PIN_VEGETABLES = "26";
+const char *RELAY_PIN_FRUIT = "27";
 
 #ifdef ds_3231
 RtcDS3231<TwoWire> Rtc(Wire);
