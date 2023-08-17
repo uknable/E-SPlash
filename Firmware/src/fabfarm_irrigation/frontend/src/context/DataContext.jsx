@@ -16,7 +16,8 @@ const DataContextProvider = ({ children }) => {
             .then((data) => {
                 console.log('fetched data from server:', data);
                 setData(data);
-                setTimeout(fetchAndSetData, DATA_FETCH_INTERVAL);
+                // setTimeout(fetchAndSetData, DATA_FETCH_INTERVAL); // fetches and sets data at a regular interval
+                // ^ is commented out because I wanted to fetch and set data when a websocket message is received.
             })
             .catch((err) => {
                 throw new Error('Critical error fetching data from server:', err);

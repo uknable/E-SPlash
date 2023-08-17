@@ -8908,7 +8908,6 @@ const Topbar = () => {
   ] });
 };
 const DataContext = reactExports.createContext(null);
-const DATA_FETCH_INTERVAL = 5e3;
 const DataContextProvider = ({ children }) => {
   const [data, setData] = reactExports.useState(null);
   const url = "/data.json";
@@ -8917,7 +8916,6 @@ const DataContextProvider = ({ children }) => {
     fetch(url).then((res) => res.json()).then((data2) => {
       console.log("fetched data from server:", data2);
       setData(data2);
-      setTimeout(fetchAndSetData, DATA_FETCH_INTERVAL);
     }).catch((err) => {
       throw new Error("Critical error fetching data from server:", err);
     });
@@ -8933,6 +8931,16 @@ const useData = () => {
 const Dashboard$1 = "";
 const Dashboard = ({ data }) => {
   const [currentDate, currentTime] = data.global.time.split("T");
+  const { setData } = useData();
+  const url = "/data.json";
+  const fetchAndSetData = () => {
+    fetch(url).then((res) => res.json()).then((data2) => {
+      console.log("fetched data from server:", data2);
+      setData(data2);
+    }).catch((err) => {
+      throw new Error("Critical error fetching data from server:", err);
+    });
+  };
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { className: "dashboard", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx("header", { className: "page-title", children: /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { children: "Dashboard" }) }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "cards-container", children: [
@@ -8951,7 +8959,8 @@ const Dashboard = ({ data }) => {
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "card", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "icon-container", children: /* @__PURE__ */ jsxRuntimeExports.jsx("img", { src: "/src/assets/icons/thermometer.svg", alt: "batLevel" }) }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "card-value", children: data.global.batLevel ?? "n/a" })
-      ] })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: fetchAndSetData, children: "Refresh" })
     ] })
   ] });
 };
@@ -8989,7 +8998,7 @@ const Controls = ({
             ),
             /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "slider round" })
           ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: relay.isEnabled ? "Schedule" : "Manual" })
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: relay.isScheduleMode ? "Schedule" : "Manual" })
         ] })
       ] }),
       !relay.isScheduleMode && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "enable-check-wrapper", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -9051,11 +9060,21 @@ const Home = () => {
   const [startTime, setStartTime] = reactExports.useState("");
   const [duration, setDuration] = reactExports.useState("");
   const ws = reactExports.useRef(socket);
+  const url = "/data.json";
+  const fetchAndSetData = () => {
+    fetch(url).then((res) => res.json()).then((data2) => {
+      console.log("fetched data from server:", data2);
+      setData(data2);
+    }).catch((err) => {
+      throw new Error("Critical error fetching data from server:", err);
+    });
+  };
   reactExports.useEffect(() => {
     var _a;
     (_a = ws.current) == null ? void 0 : _a.addEventListener("message", (event) => {
       const responseData = JSON.parse(event.data);
       console.log("WebSocket JSON response received from ESP32:", responseData);
+      fetchAndSetData();
     });
     return () => {
       var _a2;
@@ -9067,13 +9086,18 @@ const Home = () => {
     return (_a = ws.current) == null ? void 0 : _a.send(msg);
   };
   const handleScheduleModeChange = (pin) => {
+    console.log(`Sending message ${pin}`);
+    const dataToSend = {
+      action: "scheduleMode",
+      relayPin: `${pin}`
+    };
+    sendMessage(JSON.stringify(dataToSend));
   };
   const handleEnableRelay = (pin) => {
     console.log(`Sending message ${pin}`);
     const dataToSend = {
       action: "enable",
       relayPin: `${pin}`
-      // relayName: `${name}`
     };
     sendMessage(JSON.stringify(dataToSend));
   };

@@ -6,6 +6,30 @@ const int HTTP_OK = 200;
 const int HTTP_INTERNAL_SERVER_ERROR = 500;
 const int HTTP_METHOD_NOT_ALLOWED = 405;
 
+void relayScheduleModeChange(const char* pin) {
+    const char* pinIndices[] = {
+        RELAY_PIN_FRUIT,  // For RELAY_PIN_FRUIT
+        RELAY_PIN_VEGETABLES,  // For RELAY_PIN_VEGETABLES
+        RELAY_PIN_WATER   // For RELAY_PIN_WATER
+    };
+
+    int index = -1; // Initialize to nullptr
+
+    for (int i = 0; i < sizeof(pinIndices) / sizeof(pinIndices[0]); i++) {
+        if (String(pin).equals(pinIndices[i])) {
+            index = i;
+            break;
+        }
+    }
+
+    if (index == -1) {
+        return;
+    }
+
+    bool scheduleState = doc["relays"][index]["isScheduleMode"];
+    doc["relays"][index]["isScheduleMode"].set(!scheduleState);
+}
+
 void relayEnable(const char* pin) {
     const char* pinIndices[] = {
         RELAY_PIN_FRUIT,  // For RELAY_PIN_FRUIT
@@ -88,15 +112,19 @@ void onWebSocketEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsE
 
                         relayEnable(pin);
 
-                    } else if (strcmp(action, "schedule") == 0) {
+                    } else if (strcmp(action, "scheduleMode") == 0) {
 
                         // Handle "schedule" action
+                        Serial.print("Changing ScheduleMode for pin ");
+                        Serial.println(pin);
 
-                    } else if (strcmp(action, "add") == 0) {
+                        relayScheduleModeChange(pin);
+
+                    } else if (strcmp(action, "addSchedule") == 0) {
 
                         // Handle "add" action
 
-                    } else if (strcmp(action, "delete") == 0) {
+                    } else if (strcmp(action, "deleteSchedule") == 0) {
 
                         // Handle "delete" action
 
@@ -224,8 +252,8 @@ void handleUpdateRelayTimeRequest(AsyncWebServerRequest *request, JsonVariant &j
 {
     int relayIndex = json["relayIndex"];
     int timeIndex = json["timeIndex"];
-    doc["relays"][relayIndex]["times"][timeIndex]["startTime"].set(json["startTime"]);
-    doc["relays"][relayIndex]["times"][timeIndex]["duration"].set(json["duration"]);
+    doc["relays"][relayIndex]["schedules"][timeIndex]["startTime"].set(json["startTime"]);
+    doc["relays"][relayIndex]["schedules"][timeIndex]["duration"].set(json["duration"]);
 
     if (writeDataJson())
     {
@@ -240,7 +268,7 @@ void handleUpdateRelayTimeRequest(AsyncWebServerRequest *request, JsonVariant &j
 // Handler for POST /relay/add-time
 void handleAddRelayTimeRequest(AsyncWebServerRequest *request, JsonVariant &json)
 {
-    JsonObject nested = doc["relays"][json["relayIndex"]]["times"].as<JsonArray>().createNestedObject();
+    JsonObject nested = doc["relays"][json["relayIndex"]]["schedules"].as<JsonArray>().createNestedObject();
     nested["startTime"] = "10:00";
     nested["duration"] = 30;
 
@@ -260,7 +288,7 @@ void handleDeleteRelayTimeRequest(AsyncWebServerRequest *request)
     int relayIndex = request->pathArg(0).toInt();
     int timeIndex = request->pathArg(1).toInt();
 
-    doc["relays"][relayIndex]["times"].as<JsonArray>().remove(timeIndex);
+    doc["relays"][relayIndex]["schedules"].as<JsonArray>().remove(timeIndex);
 
     if (writeDataJson())
     {
@@ -285,7 +313,7 @@ void handleAddRelayRequest(AsyncWebServerRequest *request, JsonVariant &json)
     JsonObject newTime = array.createNestedObject();
     newTime["startTime"] = "10:00";
     newTime["duration"] = 30;
-    nested["times"] = array;
+    nested["schedules"] = array;
 
     nested["name"] = json["name"];
     nested["pin"] = json["pin"];

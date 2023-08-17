@@ -34,7 +34,7 @@ void handleDevices(JsonArray devices, bool (*shouldEnableDevice)(JsonObject &))
 
 bool shouldEnableDeviceInScheduleMode(JsonObject &device)
 {
-  for (JsonObject time : device["times"].as<JsonArray>())
+  for (JsonObject time : device["schedules"].as<JsonArray>())
   {
     int hours = time["startTime"].as<String>().substring(0, 2).toInt();
     int minutes = time["startTime"].as<String>().substring(3).toInt();
