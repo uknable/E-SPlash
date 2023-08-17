@@ -4,7 +4,6 @@ import { useData } from '../../hooks/useData';
 import Dashboard from '../../components/Dashboard';
 import Controls from '../../components/Controls';
 
-import { useWebSocket, WebSocketContextProvider } from '../../context/WebSocketContext';
 
 
 // Websocket code from:
@@ -53,7 +52,7 @@ const Home = () => {
     //         });
     // };
 
-    const handleEnableRelay = (e, relayId) => {
+    const handleEnableRelay = (pin) => {
         // fetch({
         //     url: `/relays/${relayId}/enable`,
         //     method: 'POST',
@@ -115,27 +114,25 @@ const Home = () => {
 
     return (
         <main>
-            <WebSocketContextProvider socket={socket} >
-                {!!data && (
-                    <>
-                        <Dashboard data={data} />
-                        <Controls
-                            data={data}
-                            handleScheduleModeChange={handleScheduleModeChange}
-                            handleEnableRelay={handleEnableRelay}
-                            scheduleInputs={{
-                                startTime,
-                                setStartTime,
-                                duration,
-                                setDuration,
-                            }}
-                            addSchedule={addSchedule}
-                            removeSchedule={removeSchedule}
-                            modifySchedule={modifySchedule}
-                        />
-                    </>
-                )}
-            </WebSocketContextProvider>
+            {!!data && (
+                <>
+                    <Dashboard data={data} />
+                    <Controls
+                        data={data}
+                        handleScheduleModeChange={handleScheduleModeChange}
+                        handleEnableRelay={handleEnableRelay}
+                        scheduleInputs={{
+                            startTime,
+                            setStartTime,
+                            duration,
+                            setDuration,
+                        }}
+                        addSchedule={addSchedule}
+                        removeSchedule={removeSchedule}
+                        modifySchedule={modifySchedule}
+                    />
+                </>
+            )}
         </main>
     );
 };

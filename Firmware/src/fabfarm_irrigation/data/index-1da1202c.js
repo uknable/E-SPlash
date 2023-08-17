@@ -8894,13 +8894,6 @@ function useLinkClickHandler(to, _temp) {
   }, [location, navigate, path, replaceProp, state, target, to, preventScrollReset, relative]);
 }
 const App$1 = "";
-const WebSocketContext = reactExports.createContext();
-const useWebSocket = () => {
-  return reactExports.useContext(WebSocketContext);
-};
-const WebSocketContextProvider = ({ children, socket: socket2 }) => {
-  return /* @__PURE__ */ jsxRuntimeExports.jsx(WebSocketContext.Provider, { value: socket2, children });
-};
 const Topbar$1 = "";
 const Topbar = () => {
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("header", { className: "topbar", children: [
@@ -8966,13 +8959,12 @@ const Controls$1 = "";
 const Controls = ({
   data,
   handleScheduleModeChange,
-  handleToggleRelay,
+  handleEnableRelay,
   scheduleInputs,
   addSchedule,
   removeSchedule,
   modifySchedule
 }) => {
-  useWebSocket();
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { className: "controls", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx("header", { className: "controls-page-header", children: /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { children: "Controls" }) }),
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "controls-container", children: data.relays.map((relay) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "control-box", children: [
@@ -9005,7 +8997,7 @@ const Controls = ({
         {
           type: "checkbox",
           checked: relay.isEnabled,
-          onChange: (e) => handleToggleRelay(e, relay.id)
+          onChange: (e) => handleEnableRelay(relay.pin)
         }
       ) }),
       !!relay.isScheduleMode && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "scheduling-wrapper", children: [
@@ -9070,26 +9062,20 @@ const Home = () => {
       (_a2 = ws.current) == null ? void 0 : _a2.removeAllListeners();
     };
   }, []);
-  const sendMessage = (json) => {
+  const sendMessage = (msg) => {
     var _a;
-    return (_a = ws.current) == null ? void 0 : _a.send(json);
+    return (_a = ws.current) == null ? void 0 : _a.send(msg);
   };
   const handleScheduleModeChange = (pin) => {
+  };
+  const handleEnableRelay = (pin) => {
     console.log(`Sending message ${pin}`);
     const dataToSend = {
       action: "enable",
       relayPin: `${pin}`
-      // relayId: `${pin}`
+      // relayName: `${name}`
     };
     sendMessage(JSON.stringify(dataToSend));
-  };
-  const handleToggleRelay = (e, relayId2) => {
-    fetch({
-      url: `/relays/${relayId2}/enable`,
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: { isEnabled: e.target.checked }
-    }).then((res) => res.json()).then((data2) => setData(data2));
   };
   const addSchedule = (relayId2) => {
     fetch({
@@ -9115,14 +9101,14 @@ const Home = () => {
       body: { startTime, duration }
     }).then((res) => res.json()).then((data2) => setData(data2));
   };
-  return /* @__PURE__ */ jsxRuntimeExports.jsx("main", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(WebSocketContextProvider, { socket, children: !!data && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+  return /* @__PURE__ */ jsxRuntimeExports.jsx("main", { children: !!data && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx(Dashboard, { data }),
     /* @__PURE__ */ jsxRuntimeExports.jsx(
       Controls,
       {
         data,
         handleScheduleModeChange,
-        handleToggleRelay,
+        handleEnableRelay,
         scheduleInputs: {
           startTime,
           setStartTime,
@@ -9134,7 +9120,7 @@ const Home = () => {
         modifySchedule
       }
     )
-  ] }) }) });
+  ] }) });
 };
 const DateAndTime$1 = "";
 const DateAndTime = ({ currentTime, inputDate, setInputDate, inputTime, setInputTime, setDateTime }) => {
