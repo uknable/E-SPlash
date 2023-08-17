@@ -19,6 +19,7 @@
         {
             "name": "Fruit",
             "pin": 27,
+            "isScheduleMode": false,
             "isEnabled": false,
             "active": true,
             "times": [
@@ -31,6 +32,7 @@
         {
             "name": "Vegetables",
             "pin": 26,
+            "isScheduleMode": false,
             "isEnabled": false,
             "active": true,
             "times": [
@@ -43,6 +45,7 @@
         {
             "name": "Water",
             "pin": 25,
+            "isScheduleMode": false,
             "isEnabled": false,
             "active": true,
             "times": [

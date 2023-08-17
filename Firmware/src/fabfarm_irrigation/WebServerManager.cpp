@@ -6,21 +6,44 @@ const int HTTP_OK = 200;
 const int HTTP_INTERNAL_SERVER_ERROR = 500;
 const int HTTP_METHOD_NOT_ALLOWED = 405;
 
+void relayEnable(const char* pin) {
+    const char* pinIndices[] = {
+        RELAY_PIN_FRUIT,  // For RELAY_PIN_FRUIT
+        RELAY_PIN_VEGETABLES,  // For RELAY_PIN_VEGETABLES
+        RELAY_PIN_WATER   // For RELAY_PIN_WATER
+    };
 
-// void relayActionSwitch(char action) {
-//     switch(action) {
-//         case "enable":
-//             break;
-//         case "schedule":
-//             break;
-//         case "add":
-//             break;
-//         case "delete":
-//             break;
-//         default:
-//             break;
-//     }
-// }
+    int index = -1; // Initialize to nullptr
+
+    for (int i = 0; i < sizeof(pinIndices) / sizeof(pinIndices[0]); i++) {
+        if (String(pin).equals(pinIndices[i])) {
+            index = i;
+            break;
+        }
+    }
+
+    if (index == -1) {
+        return;
+    }
+
+    bool scheduleState = doc["relays"][index]["isScheduleMode"];
+
+    // First check if pin is NOT in schedule mode
+    if (scheduleState == false) {
+
+        Serial.println("Pin is NOT in Schedule mode");
+
+        bool state = doc["relays"][index]["isEnabled"];
+        Serial.print("Current state: ");
+        Serial.println(state);
+
+        doc["relays"][index]["isEnabled"].set(!state);
+
+    } else {
+        Serial.println("Pin is in Schedule mode");
+    }
+}
+
 
 // Websocket code from https://chat.openai.com/share/5a88f9ca-4172-4c3e-8ae7-a0a75ff5e305
 void onWebSocketEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type, void *arg, uint8_t *data, size_t len) {
@@ -35,14 +58,6 @@ void onWebSocketEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsE
         // Handle WebSocket data received
         AwsFrameInfo *info = (AwsFrameInfo *)arg;
         if (info->final && info->index == 0 && info->len == len && info->opcode == WS_TEXT) {
-            
-            // const size_t bufferSize = JSON_OBJECT_SIZE(100); // Adjust as needed
-            // StaticJsonDocument<bufferSize> jsonDoc;
-            // DeserializationError error = deserializeJson(jsonDoc, data, len);
-
-            // String jsonStr((char *)data);
-            // StaticJsonDocument<200> jsonDoc; // Adjust the buffer size as needed
-            // DeserializationError error = deserializeJson(jsonDoc, jsonStr);
 
             Serial.println("Received WebSocket message: " + String((char*)data));
 
@@ -53,15 +68,54 @@ void onWebSocketEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsE
             DeserializationError error = deserializeJson(jsonDoc, (char*)data);
 
             if (!error) {
-                // const char* pin = jsonDoc["relayId"];
                 const char* pin = jsonDoc["relayPin"];
-                // const char* action = jsonDoc["action"]; 
 
                 Serial.print("Parsed value: ");
                 Serial.println(pin);
                 
-                if (String(pin).equals("25") || String(pin).equals("26") || String(pin).equals("27")) {
-                    Serial.println("Pin recognised");
+                if (String(pin).equals(RELAY_PIN_FRUIT) || String(pin).equals(RELAY_PIN_VEGETABLES) || String(pin).equals(RELAY_PIN_WATER)) {
+
+                    const char* action = jsonDoc["action"]; 
+
+                    // Send response to React
+                    DynamicJsonDocument jsonResponse(256); // Adjust the size as needed
+
+                    // Enabling relay pin
+                    if (strcmp(action, "enable") == 0) {
+
+                        Serial.print("Enabling pin ");
+                        Serial.println(pin);
+
+                        relayEnable(pin);
+
+                    } else if (strcmp(action, "schedule") == 0) {
+
+                        // Handle "schedule" action
+
+                    } else if (strcmp(action, "add") == 0) {
+
+                        // Handle "add" action
+
+                    } else if (strcmp(action, "delete") == 0) {
+
+                        // Handle "delete" action
+
+                    } else {
+                        // Handle other cases
+                    }
+
+                    if (writeDataJson()) {
+                        jsonResponse["status"] = "Success";
+                        // jsonResponse["message"] = "JSON ";
+                    } else {
+                        jsonResponse["status"] = "Failure";
+                    }
+                    
+                    // Prepare JSON response
+                    String jsonString;
+                    serializeJson(jsonResponse, jsonString); // Serialize the JSON object to a string
+                    
+                    client->text(jsonString); // Send the JSON response back to the client
                 } else {
                     Serial.println("Pin not recognised");
                 }

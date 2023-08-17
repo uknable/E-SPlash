@@ -4,6 +4,9 @@
 #include "Config.h"
 
 void serverHandle();
+void relayEnable(const char* pin);
+void onWebSocketEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type, void *arg, uint8_t *data, size_t len);
+void sendJsonResponse(AsyncWebServerRequest *request, DynamicJsonDocument &data);
 void handleUpdateDataRequest(AsyncWebServerRequest *request, JsonVariant &json);
 void handleRelayRequest(AsyncWebServerRequest *request);
 void handleUpdateRelayTimeRequest(AsyncWebServerRequest *request, JsonVariant &json);

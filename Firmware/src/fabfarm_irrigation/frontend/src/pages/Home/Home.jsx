@@ -20,35 +20,19 @@ const Home = () => {
     const ws = useRef(socket);
 
     useEffect(() => {
-        ws.current?.addEventListener("message", ({ data }) => {
-            parseMessage(data);
+        ws.current?.addEventListener("message", (event) => {
+            const responseData = JSON.parse(event.data);
+            console.log("WebSocket JSON response received from ESP32:", responseData);
         });
         return () => {
-            ws.current?.removeAllListeners()
+            ws.current?.removeAllListeners();
         }
     }, [])
 
-    const parseMessage = (msg) => {
-        if (msg[0] !== "R") sendMessage({"message": "123"}); // ignore the very first message from the socket. 
-    };
-
-    const sendMessage = (json) => ws.current?.send(json);
-
-
-    const sendMsg = () => {
-        ws.current?.send("test");
-    };
+    const sendMessage = (msg) => ws.current?.send(msg);
 
     const handleScheduleModeChange = (pin) => {
-        console.log(`Sending message ${pin}`);
 
-        const dataToSend = {
-            action: "enable",
-            relayPin: `${pin}`,
-            // relayId: `${pin}`
-          };
-
-        sendMessage(JSON.stringify(dataToSend));
     }
 
     // const handleScheduleModeChange = (e, relayId) => {
@@ -69,15 +53,25 @@ const Home = () => {
     //         });
     // };
 
-    const handleToggleRelay = (e, relayId) => {
-        fetch({
-            url: `/relays/${relayId}/enable`,
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: { isEnabled: e.target.checked },
-        })
-            .then((res) => res.json())
-            .then((data) => setData(data));
+    const handleEnableRelay = (e, relayId) => {
+        // fetch({
+        //     url: `/relays/${relayId}/enable`,
+        //     method: 'POST',
+        //     headers: { 'Content-Type': 'application/json' },
+        //     body: { isEnabled: e.target.checked },
+        // })
+        //     .then((res) => res.json())
+        //     .then((data) => setData(data));
+
+        console.log(`Sending message ${pin}`);
+
+        const dataToSend = {
+            action: "enable",
+            relayPin: `${pin}`,
+            // relayName: `${name}`
+          };
+
+        sendMessage(JSON.stringify(dataToSend));
     };
 
     const addSchedule = (relayId) => {
@@ -128,7 +122,7 @@ const Home = () => {
                         <Controls
                             data={data}
                             handleScheduleModeChange={handleScheduleModeChange}
-                            handleToggleRelay={handleToggleRelay}
+                            handleEnableRelay={handleEnableRelay}
                             scheduleInputs={{
                                 startTime,
                                 setStartTime,

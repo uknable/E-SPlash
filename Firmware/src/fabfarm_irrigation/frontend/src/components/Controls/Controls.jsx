@@ -6,7 +6,7 @@ import { useWebSocket, WebSocketContextProvider } from '../../context/WebSocketC
 const Controls = ({
     data,
     handleScheduleModeChange,
-    handleToggleRelay,
+    handleEnableRelay,
     scheduleInputs,
     addSchedule,
     removeSchedule,
@@ -48,7 +48,7 @@ const Controls = ({
                                 <input
                                     type='checkbox'
                                     checked={relay.isEnabled}
-                                    onChange={(e) => handleToggleRelay(e, relay.id)}
+                                    onChange={(e) => handleEnableRelay(e, relay.id)}
                                 />
                             </div>
                         )}

@@ -9061,18 +9061,15 @@ const Home = () => {
   const ws = reactExports.useRef(socket);
   reactExports.useEffect(() => {
     var _a;
-    (_a = ws.current) == null ? void 0 : _a.addEventListener("message", ({ data: data2 }) => {
-      parseMessage(data2);
+    (_a = ws.current) == null ? void 0 : _a.addEventListener("message", (event) => {
+      const responseData = JSON.parse(event.data);
+      console.log("WebSocket JSON response received from ESP32:", responseData);
     });
     return () => {
       var _a2;
       (_a2 = ws.current) == null ? void 0 : _a2.removeAllListeners();
     };
   }, []);
-  const parseMessage = (msg) => {
-    if (msg[0] !== "R")
-      sendMessage({ "message": "123" });
-  };
   const sendMessage = (json) => {
     var _a;
     return (_a = ws.current) == null ? void 0 : _a.send(json);
