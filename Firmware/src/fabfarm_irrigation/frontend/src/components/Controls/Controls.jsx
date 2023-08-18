@@ -69,9 +69,9 @@ const Controls = ({
                                                     <td>{schedule.duration}</td>
                                                     <td>
                                                         {/* modify should use same modal as add schedule */}
-                                                        <button onClick={() => modifySchedule(relay.pin, index)}>
+                                                        {/* <button onClick={() => modifySchedule(relay.pin, index)}>
                                                             Modify
-                                                        </button>
+                                                        </button> */}
                                                         <button onClick={() => deleteSchedule(relay.pin, index)}>
                                                             Delete
                                                         </button>
