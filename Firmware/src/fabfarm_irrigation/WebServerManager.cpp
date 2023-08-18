@@ -6,7 +6,7 @@ const int HTTP_OK = 200;
 const int HTTP_INTERNAL_SERVER_ERROR = 500;
 const int HTTP_METHOD_NOT_ALLOWED = 405;
 
-void relayScheduleModeChange(const char* pin) {
+int determineIndex(const char* pin) {
     const char* pinIndices[] = {
         RELAY_PIN_FRUIT,  // For RELAY_PIN_FRUIT
         RELAY_PIN_VEGETABLES,  // For RELAY_PIN_VEGETABLES
@@ -18,13 +18,25 @@ void relayScheduleModeChange(const char* pin) {
     for (int i = 0; i < sizeof(pinIndices) / sizeof(pinIndices[0]); i++) {
         if (String(pin).equals(pinIndices[i])) {
             index = i;
-            break;
+            return index;
         }
     }
 
     if (index == -1) {
-        return;
+        return -1;
     }
+}
+
+void relayAddSchedule(const char* pin) {
+    const char* pinIndices[] = {
+        RELAY_PIN_FRUIT,  // For RELAY_PIN_FRUIT
+        RELAY_PIN_VEGETABLES,  // For RELAY_PIN_VEGETABLES
+        RELAY_PIN_WATER   // For RELAY_PIN_WATER
+    };
+}
+
+void relayScheduleModeChange(const char* pin) {
+    int index = determineIndex(pin); 
 
     bool scheduleState = doc["relays"][index]["isScheduleMode"];
     doc["relays"][index]["isScheduleMode"].set(!scheduleState);
@@ -123,10 +135,16 @@ void onWebSocketEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsE
                     } else if (strcmp(action, "addSchedule") == 0) {
 
                         // Handle "add" action
+                        Serial.print("Adding a schedule for pin ");
+                        Serial.println(pin);
+
+                        relayAddSchedule(pin);
 
                     } else if (strcmp(action, "deleteSchedule") == 0) {
 
                         // Handle "delete" action
+                        Serial.print("Deleting schedule for pin ");
+                        Serial.println(pin);
 
                     } else {
                         // Handle other cases
