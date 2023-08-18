@@ -22,9 +22,9 @@ int determineIndex(const char* pin) {
         }
     }
 
-    if (index == -1) {
-        return -1;
-    }
+    // return -1 when the pin is not recognised
+    // TODO: write a handler for this possiblity
+    return -1;
 }
 
 void relayAddSchedule(const char* pin) {
@@ -43,40 +43,18 @@ void relayScheduleModeChange(const char* pin) {
 }
 
 void relayEnable(const char* pin) {
-    const char* pinIndices[] = {
-        RELAY_PIN_FRUIT,  // For RELAY_PIN_FRUIT
-        RELAY_PIN_VEGETABLES,  // For RELAY_PIN_VEGETABLES
-        RELAY_PIN_WATER   // For RELAY_PIN_WATER
-    };
-
-    int index = -1; // Initialize to nullptr
-
-    for (int i = 0; i < sizeof(pinIndices) / sizeof(pinIndices[0]); i++) {
-        if (String(pin).equals(pinIndices[i])) {
-            index = i;
-            break;
-        }
-    }
-
-    if (index == -1) {
-        return;
-    }
+    int index = determineIndex(pin); 
 
     bool scheduleState = doc["relays"][index]["isScheduleMode"];
 
     // First check if pin is NOT in schedule mode
     if (scheduleState == false) {
 
-        Serial.println("Pin is NOT in Schedule mode");
-
         bool state = doc["relays"][index]["isEnabled"];
-        Serial.print("Current state: ");
-        Serial.println(state);
-
         doc["relays"][index]["isEnabled"].set(!state);
 
-    } else {
-        Serial.println("Pin is in Schedule mode");
+    } else { // This else statement shouldn't be possible as user doesn't have option to enable while in schedule mode
+        Serial.println("Pin is in Schedule mode, how did you do that?");
     }
 }
 
