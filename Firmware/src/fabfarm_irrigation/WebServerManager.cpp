@@ -6,19 +6,16 @@ const int HTTP_OK = 200;
 const int HTTP_INTERNAL_SERVER_ERROR = 500;
 const int HTTP_METHOD_NOT_ALLOWED = 405;
 
-int determineIndex(const char* pin) {
+int getPinIndex(const char* pin) {
     const char* pinIndices[] = {
         RELAY_PIN_FRUIT,  // For RELAY_PIN_FRUIT
         RELAY_PIN_VEGETABLES,  // For RELAY_PIN_VEGETABLES
         RELAY_PIN_WATER   // For RELAY_PIN_WATER
     };
 
-    int index = -1; // Initialize to nullptr
-
     for (int i = 0; i < sizeof(pinIndices) / sizeof(pinIndices[0]); i++) {
         if (String(pin).equals(pinIndices[i])) {
-            index = i;
-            return index;
+            return i;
         }
     }
 
@@ -27,23 +24,31 @@ int determineIndex(const char* pin) {
     return -1;
 }
 
-void relayAddSchedule(const char* pin) {
-    const char* pinIndices[] = {
-        RELAY_PIN_FRUIT,  // For RELAY_PIN_FRUIT
-        RELAY_PIN_VEGETABLES,  // For RELAY_PIN_VEGETABLES
-        RELAY_PIN_WATER   // For RELAY_PIN_WATER
-    };
+void relayAddSchedule(const char* pin, const char* startTime, const char* duration) {
+    int index = getPinIndex(pin); 
+
+    // Create a new JSON object to add to the "schedules" array
+    JsonObject newSchedule = doc["relays"][index]["schedules"].createNestedObject();
+
+    // Populate the new schedule object with key-value pairs
+    newSchedule["startTime"] = "startTime";
+    newSchedule["duration"] = "duration";
 }
 
 void relayScheduleModeChange(const char* pin) {
-    int index = determineIndex(pin); 
+    int index = getPinIndex(pin); 
 
     bool scheduleState = doc["relays"][index]["isScheduleMode"];
     doc["relays"][index]["isScheduleMode"].set(!scheduleState);
+
+    // turn off relay when going into schedule mode
+    if (scheduleState) {
+        doc["relays"][index]["isEnabled"].set(false);
+    }
 }
 
 void relayEnable(const char* pin) {
-    int index = determineIndex(pin); 
+    int index = getPinIndex(pin); 
 
     bool scheduleState = doc["relays"][index]["isScheduleMode"];
 
@@ -115,8 +120,11 @@ void onWebSocketEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsE
                         // Handle "add" action
                         Serial.print("Adding a schedule for pin ");
                         Serial.println(pin);
+                        
+                        const char* startTime = jsonDoc["startTime"]; 
+                        const char* duration = jsonDoc["duration"]; 
 
-                        relayAddSchedule(pin);
+                        relayAddSchedule(pin, startTime, duration);
 
                     } else if (strcmp(action, "deleteSchedule") == 0) {
 
