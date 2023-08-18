@@ -1,3 +1,24 @@
+# WebSocket branch
+
+This branch builds on the frontend-react branch. The intention of the frontend-react was to have the ESP32 server and React client talk to each other using a HTTP API but I wanted to experiment with WebSockets because I thought it would be easier to implement and faster during production.
+
+Currently most of the actions are implemented on the React side: enabling on/off during manual mode, switching between manual/schedule mode, adding schedules and removing schedules. I removed the option to modify for simplicity. If the user wants to modify a schedule they can delete the current one and add a new one. This feature can be added later.
+
+## TODO:
+The backend needs more work to play nice with the websocket implementation. 
+    - Check if the relay pins light up on the Arduino module when they're enabled. 
+    - Fix how the schedule data is handled from client to server then back to client. Something happens in this process which renders the schedule data in some strange format most of the time.
+
+Test the relay module with LEDs or something.
+
+Have the client or server try to re-establish a WebSocket connection if it disconnects. 
+
+App responsiveness
+    - Improve responsiveness by updating specific properties of the relay rather than use fetchAndSetData() every time an action is carried out. Using this method will mean that smaller JSON data is exchanged which hopefully should result in faster handling and responsiveness.
+
+Make React app prettier.
+
+
 # FabLab Irrigation System
 
 ## Design
