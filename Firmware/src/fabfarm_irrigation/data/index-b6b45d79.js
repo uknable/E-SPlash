@@ -9022,8 +9022,8 @@ const Controls = ({
             /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: schedule.startTime }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: schedule.duration }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs("td", { children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => modifySchedule(relay.id, schedule.id), children: "Modify" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => removeSchedule(relay.id, schedule.id), children: "Remove" })
+              /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => modifySchedule(relay.pin, schedule.id), children: "Modify" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => removeSchedule(relay.pin, schedule.id), children: "Remove" })
             ] })
           ] }, schedule.id)) })
         ] }) }),
@@ -9048,7 +9048,7 @@ const Controls = ({
               onChange: (e) => scheduleInputs.setDuration(e.target.value)
             }
           ),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "set-time-btn", onClick: () => addSchedule(relay.id), children: "Add schedule" })
+          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "set-time-btn", onClick: () => addSchedule(relay.pin), children: "Add schedule" })
         ] })
       ] })
     ] }, relay.id)) })
@@ -9086,7 +9086,7 @@ const Home = () => {
     return (_a = ws.current) == null ? void 0 : _a.send(msg);
   };
   const handleScheduleModeChange = (pin) => {
-    console.log(`Sending message ${pin}`);
+    console.log(`Toggling Schedule Mode for pin ${pin}`);
     const dataToSend = {
       action: "scheduleMode",
       relayPin: `${pin}`
@@ -9094,20 +9094,23 @@ const Home = () => {
     sendMessage(JSON.stringify(dataToSend));
   };
   const handleEnableRelay = (pin) => {
-    console.log(`Sending message ${pin}`);
+    console.log(`Toggling on/off status for pin ${pin}`);
     const dataToSend = {
       action: "enable",
       relayPin: `${pin}`
     };
     sendMessage(JSON.stringify(dataToSend));
   };
-  const addSchedule = (relayId2) => {
-    fetch({
-      url: `/relays/${relayId2}/schedule`,
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: { startTime, duration }
-    }).then((res) => res.json()).then((data2) => setData(data2));
+  const addSchedule = (pin) => {
+    console.log(`Adding a schedule for pin ${pin}`);
+    const dataToSend = {
+      action: "addSchedule",
+      relayPin: `${pin}`,
+      startTime: `${startTime}`,
+      duration: `${duration}`
+      // relayId: `${relayId}`
+    };
+    console.log(dataToSend);
   };
   const removeSchedule = (relayId2, scheduleid2) => {
     fetch({

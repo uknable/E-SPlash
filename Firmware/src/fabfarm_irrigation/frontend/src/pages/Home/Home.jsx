@@ -47,8 +47,7 @@ const Home = () => {
     const sendMessage = (msg) => ws.current?.send(msg);
 
     const handleScheduleModeChange = (pin) => {
-
-        console.log(`Sending message ${pin}`);
+        console.log(`Toggling Schedule Mode for pin ${pin}`);
 
         const dataToSend = {
             action: "scheduleMode",
@@ -58,35 +57,8 @@ const Home = () => {
         sendMessage(JSON.stringify(dataToSend));
     }
 
-    // const handleScheduleModeChange = (e, relayId) => {
-    //     console.log("sending request", relayId);
-    //     fetch({
-    //         url: `/relays/${relayId}/schedule-mode`,
-    //         method: 'POST',
-    //         headers: { 'Content-Type': 'application/json' },
-    //         body: { isScheduleMode: e.target.checked },
-    //     })
-    //         .then((res) => {
-    //             console.log("response received", res);
-    //             res.json()
-    //         })
-    //         .then((data) => {
-    //             console.log("setting data", data);
-    //             setData(data)
-    //         });
-    // };
-
     const handleEnableRelay = (pin) => {
-        // fetch({
-        //     url: `/relays/${relayId}/enable`,
-        //     method: 'POST',
-        //     headers: { 'Content-Type': 'application/json' },
-        //     body: { isEnabled: e.target.checked },
-        // })
-        //     .then((res) => res.json())
-        //     .then((data) => setData(data));
-
-        console.log(`Sending message ${pin}`);
+        console.log(`Toggling on/off status for pin ${pin}`);
 
         const dataToSend = {
             action: "enable",
@@ -96,17 +68,29 @@ const Home = () => {
         sendMessage(JSON.stringify(dataToSend));
     };
 
-    const addSchedule = (relayId) => {
-        fetch({
-            url: `/relays/${relayId}/schedule`,
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: { startTime, duration },
-        })
-            .then((res) => res.json())
-            // or should the server just return { "id": string, "startTime": string , "duration": number }
-            // and should I just setData with that prop?
-            .then((data) => setData(data));
+    const addSchedule = (pin) => {
+        console.log(`Adding a schedule for pin ${pin}`);
+
+        const dataToSend = {
+            action: "addSchedule",
+            relayPin: `${pin}`,
+            startTime: `${startTime}`,
+            duration: `${duration}`,
+            // relayId: `${relayId}`
+        };
+
+        console.log(dataToSend);
+
+        // fetch({
+        //     url: `/relays/${relayId}/schedule`,
+        //     method: 'POST',
+        //     headers: { 'Content-Type': 'application/json' },
+        //     body: { startTime, duration },
+        // })
+        //     .then((res) => res.json())
+        //     // or should the server just return { "id": string, "startTime": string , "duration": number }
+        //     // and should I just setData with that prop?
+        //     .then((data) => setData(data));
     };
 
     const removeSchedule = (relayId, scheduleid) => {
