@@ -6,6 +6,7 @@ bool writeDataJson()
     String jsonString;
     serializeJson(doc, jsonString);
     Serial.println("JSON serialize - COMPLETE");
+    Serial.println(jsonString);
     return writeFile("/data.json", jsonString);
 }
 

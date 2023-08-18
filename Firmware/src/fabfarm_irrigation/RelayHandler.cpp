@@ -16,7 +16,8 @@ void switchDevice(int pinNumber, bool state, const char *deviceName)
 {
   pinMode(pinNumber, OUTPUT);
   digitalWrite(pinNumber, state ? ON : OFF);
-//   Serial.printf("%s (pin %d) is %s\n\r", deviceName, pinNumber, state ? "on" : "off"); // Monitor spam
+//   Serial.printf("%s (pin %d) is %s\n\r", deviceName, pinNumber, state ? "on" : "off"); 
+  // ^ commented this out because it spams the serial monitor
 }
 
 void handleDevices(JsonArray devices, bool (*shouldEnableDevice)(JsonObject &))

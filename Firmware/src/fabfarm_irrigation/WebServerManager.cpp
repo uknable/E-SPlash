@@ -61,6 +61,12 @@ void relayAddSchedule(const char* pin, const char* startTime, const char* durati
     // Populate the new schedule object with key-value pairs
     newSchedule["startTime"] = startTime;
     newSchedule["duration"] = duration;
+
+    Serial.print("printing newSchedule from relayAddSchedule");
+    Serial.println(newSchedule);
+
+    // There's something wrong with how the server parses the value
+    // It rarely comes out correctly on the app side
 }
 
 void relayScheduleModeChange(const char* pin) {
