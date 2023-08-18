@@ -24,15 +24,43 @@ int getPinIndex(const char* pin) {
     return -1;
 }
 
+void relayDeleteSchedule(const char* pin, const char* scheduleId) {
+    int index = getPinIndex(pin); 
+
+    // hacky way of converting a string into an int but just for testing purposes
+    const char* scheduleIndices[] = {
+        "0",  
+        "1",  
+        "2",
+        "3",
+        "4"
+    };
+
+    int scheduleIndex = -1;
+
+    for (int i = 0; i < sizeof(scheduleIndices) / sizeof(scheduleIndices[0]); i++) {
+        if (String(scheduleId).equals(scheduleIndices[i])) {
+           scheduleIndex = i;
+        }
+    }
+
+    doc["relays"][index]["schedules"].remove(scheduleIndex);
+}
+
 void relayAddSchedule(const char* pin, const char* startTime, const char* duration) {
     int index = getPinIndex(pin); 
+
+    Serial.print("Adding relay startTime: ");
+    Serial.println(startTime);
+    Serial.print("duration: ");
+    Serial.println(duration);
 
     // Create a new JSON object to add to the "schedules" array
     JsonObject newSchedule = doc["relays"][index]["schedules"].createNestedObject();
 
     // Populate the new schedule object with key-value pairs
-    newSchedule["startTime"] = "startTime";
-    newSchedule["duration"] = "duration";
+    newSchedule["startTime"] = startTime;
+    newSchedule["duration"] = duration;
 }
 
 void relayScheduleModeChange(const char* pin) {
@@ -96,9 +124,6 @@ void onWebSocketEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsE
 
                     const char* action = jsonDoc["action"]; 
 
-                    // Send response to React
-                    DynamicJsonDocument jsonResponse(256); // Adjust the size as needed
-
                     // Enabling relay pin
                     if (strcmp(action, "enable") == 0) {
 
@@ -127,14 +152,22 @@ void onWebSocketEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsE
                         relayAddSchedule(pin, startTime, duration);
 
                     } else if (strcmp(action, "deleteSchedule") == 0) {
+                        const char* scheduleId = jsonDoc["scheduleId"]; 
 
                         // Handle "delete" action
                         Serial.print("Deleting schedule for pin ");
-                        Serial.println(pin);
+                        Serial.print(pin);
+                        Serial.print(" at schedule id  ");
+                        Serial.println(scheduleId);
+
+                        relayDeleteSchedule(pin, scheduleId);
 
                     } else {
                         // Handle other cases
                     }
+
+                    // Send response to React
+                    DynamicJsonDocument jsonResponse(256); // Adjust the size as needed
 
                     if (writeDataJson()) {
                         jsonResponse["status"] = "Success";

@@ -35,8 +35,8 @@ const Home = () => {
 
     useEffect(() => {
         ws.current?.addEventListener("message", (event) => {
-            const responseData = JSON.parse(event.data);
-            console.log("WebSocket JSON response received from ESP32:", responseData);
+            // const responseData = JSON.parse(event.data);
+            // console.log("WebSocket JSON response received from ESP32:", responseData);
             fetchAndSetData();
         });
         return () => {
@@ -76,33 +76,32 @@ const Home = () => {
             relayPin: `${pin}`,
             startTime: `${startTime}`,
             duration: `${duration}`,
-            // relayId: `${relayId}`
         };
 
         console.log(dataToSend);
+        sendMessage(JSON.stringify(dataToSend));
+    };
+
+    const deleteSchedule = (pin, scheduleId) => {
+        console.log(`Deleting a schedule for pin ${pin} at scheduleId ${scheduleId}`);
+
+        const dataToSend = {
+            action: "deleteSchedule",
+            relayPin: `${pin}`,
+            scheduleId: `${scheduleId}`
+        }
+
+        sendMessage(JSON.stringify(dataToSend));
 
         // fetch({
-        //     url: `/relays/${relayId}/schedule`,
-        //     method: 'POST',
+        //     url: `/relays/${relayId}/schedule/${scheduleid}`,
+        //     method: 'DELETE',
         //     headers: { 'Content-Type': 'application/json' },
-        //     body: { startTime, duration },
         // })
         //     .then((res) => res.json())
         //     // or should the server just return { "id": string, "startTime": string , "duration": number }
         //     // and should I just setData with that prop?
         //     .then((data) => setData(data));
-    };
-
-    const removeSchedule = (relayId, scheduleid) => {
-        fetch({
-            url: `/relays/${relayId}/schedule/${scheduleid}`,
-            method: 'DELETE',
-            headers: { 'Content-Type': 'application/json' },
-        })
-            .then((res) => res.json())
-            // or should the server just return { "id": string, "startTime": string , "duration": number }
-            // and should I just setData with that prop?
-            .then((data) => setData(data));
     };
 
     const modifySchedule = () => {
@@ -135,7 +134,7 @@ const Home = () => {
                             setDuration,
                         }}
                         addSchedule={addSchedule}
-                        removeSchedule={removeSchedule}
+                        deleteSchedule={deleteSchedule}
                         modifySchedule={modifySchedule}
                     />
                 </>

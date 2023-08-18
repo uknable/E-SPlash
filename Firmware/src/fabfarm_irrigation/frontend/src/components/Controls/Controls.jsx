@@ -7,7 +7,7 @@ const Controls = ({
     handleEnableRelay,
     scheduleInputs,
     addSchedule,
-    removeSchedule,
+    deleteSchedule,
     modifySchedule,
 }) => {
     return (
@@ -55,25 +55,25 @@ const Controls = ({
                                     <table>
                                         <thead>
                                             <tr>
-                                                <th>pos</th>
-                                                <th>starttime</th>
+                                                <th>id</th>
+                                                <th>startTime</th>
                                                 <th>duration</th>
                                                 <th>action</th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             {relay.schedules.map((schedule, index) => (
-                                                <tr key={schedule.id}>
+                                                <tr key={index}>
                                                     <td>{index}</td>
                                                     <td>{schedule.startTime}</td>
                                                     <td>{schedule.duration}</td>
                                                     <td>
                                                         {/* modify should use same modal as add schedule */}
-                                                        <button onClick={() => modifySchedule(relay.pin, schedule.id)}>
+                                                        <button onClick={() => modifySchedule(relay.pin, index)}>
                                                             Modify
                                                         </button>
-                                                        <button onClick={() => removeSchedule(relay.pin, schedule.id)}>
-                                                            Remove
+                                                        <button onClick={() => deleteSchedule(relay.pin, index)}>
+                                                            Delete
                                                         </button>
                                                     </td>
                                                 </tr>

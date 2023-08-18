@@ -8971,7 +8971,7 @@ const Controls = ({
   handleEnableRelay,
   scheduleInputs,
   addSchedule,
-  removeSchedule,
+  deleteSchedule,
   modifySchedule
 }) => {
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { className: "controls", children: [
@@ -9012,8 +9012,8 @@ const Controls = ({
       !!relay.isScheduleMode && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "scheduling-wrapper", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "schedules-table-wrapper", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("table", { children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "pos" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "starttime" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "id" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "startTime" }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "duration" }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "action" })
           ] }) }),
@@ -9022,10 +9022,10 @@ const Controls = ({
             /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: schedule.startTime }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: schedule.duration }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs("td", { children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => modifySchedule(relay.pin, schedule.id), children: "Modify" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => removeSchedule(relay.pin, schedule.id), children: "Remove" })
+              /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => modifySchedule(relay.pin, index2), children: "Modify" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => deleteSchedule(relay.pin, index2), children: "Delete" })
             ] })
-          ] }, schedule.id)) })
+          ] }, index2)) })
         ] }) }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -9072,8 +9072,6 @@ const Home = () => {
   reactExports.useEffect(() => {
     var _a;
     (_a = ws.current) == null ? void 0 : _a.addEventListener("message", (event) => {
-      const responseData = JSON.parse(event.data);
-      console.log("WebSocket JSON response received from ESP32:", responseData);
       fetchAndSetData();
     });
     return () => {
@@ -9108,16 +9106,18 @@ const Home = () => {
       relayPin: `${pin}`,
       startTime: `${startTime}`,
       duration: `${duration}`
-      // relayId: `${relayId}`
     };
     console.log(dataToSend);
+    sendMessage(JSON.stringify(dataToSend));
   };
-  const removeSchedule = (relayId2, scheduleid2) => {
-    fetch({
-      url: `/relays/${relayId2}/schedule/${scheduleid2}`,
-      method: "DELETE",
-      headers: { "Content-Type": "application/json" }
-    }).then((res) => res.json()).then((data2) => setData(data2));
+  const deleteSchedule = (pin, scheduleId) => {
+    console.log(`Deleting a schedule for pin ${pin} at scheduleId ${scheduleId}`);
+    const dataToSend = {
+      action: "deleteSchedule",
+      relayPin: `${pin}`,
+      scheduleId: `${scheduleId}`
+    };
+    sendMessage(JSON.stringify(dataToSend));
   };
   const modifySchedule = () => {
     fetch({
@@ -9143,7 +9143,7 @@ const Home = () => {
           setDuration
         },
         addSchedule,
-        removeSchedule,
+        deleteSchedule,
         modifySchedule
       }
     )
